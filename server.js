@@ -61,7 +61,40 @@ app.post("/users", (req, res) => {
   );
 });
 
+app.put("/users/:id", (req, res) => {
+  const id = req.params.id;
+  const { name, email } = req.body;
+  db.run(
+    "UPDATE users SET name = ?, email = ? WHERE id = ?",
+    [name, email, id],
+    function (err) {
+      if (err) {
+        res.status(500).json({ error: err.message });
+      } else if (this.changes === 0) {
+        res.status(404).json({ message: "Usuario no encontrado" });
+      } else {
+        res.json({ id, name, email });
+      }
+    }
+  );
+});
+
+app.delete("/users/:id", (req, res) => {
+  const id = req.params.id;
+  db.run("DELETE FROM users WHERE id = ?", [id], function (err) {
+    if (err) {
+      res.status(500).json({ error: err.message });
+    } else if (this.changes === 0) {
+      res.status(404).json({ message: "Usuario no encontrado" });
+    } else {
+      res.json({ message: "Usuario eliminado" });
+    }
+  });
+});
+
+
 // Iniciar servidor
 app.listen(PORT, () => {
   console.log(`Servidor corriendo en http://localhost:${PORT}`);
 });
+
